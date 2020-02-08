@@ -1,0 +1,4 @@
+[submodule "puffin"]
+	path = puffin
+	url = https://github.com/deengames-prototypes/puffin
+	branch = develop
