@@ -13,7 +13,6 @@ namespace DeenGames.Champions.Scenes
     {
         private const string DEFAULT_LABEL_TEXT = "Mouse over a unit to see it's stats";
         private const int NUM_CHOICES = 20;
-        private const int IMAGE_SIZE = 32;
         private const int TEAM_SIZE = 5;
 
         private List<Unit> pickedUnits = new List<Unit>(TEAM_SIZE);
@@ -29,16 +28,16 @@ namespace DeenGames.Champions.Scenes
             for (var i = 0; i < units.Count; i++)
             {
                 var unit = units[i];
-                var relativeX = (int)(1.5 * ((i % 5) * IMAGE_SIZE));
-                var relativeY = (int)(1.5 * (i / 5) * IMAGE_SIZE);
+                var relativeX = (int)(1.5 * ((i % 5) * Constants.IMAGE_SIZE));
+                var relativeY = (int)(1.5 * (i / 5) * Constants.IMAGE_SIZE);
 
                 this.Add(new Entity()
                     .Move(300 + relativeX, 100 + relativeY)
-                    .Spritesheet(Path.Combine("Content", "Images", "Specializations.png"), IMAGE_SIZE, IMAGE_SIZE, (int)unit.Specialization)
-                    .Overlap(IMAGE_SIZE, IMAGE_SIZE, 0, 0,
+                    .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization)
+                    .Overlap(Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, 0, 0,
                         () => label.Get<TextLabelComponent>().Text = $"Level {unit.Level} {unit.Specialization.ToString()}",
                         () => label.Get<TextLabelComponent>().Text = DEFAULT_LABEL_TEXT)
-                    .Mouse(() => this.OnAddedUnit(unit), IMAGE_SIZE, IMAGE_SIZE)
+                    .Mouse(() => this.OnAddedUnit(unit), Constants.IMAGE_SIZE, Constants.IMAGE_SIZE)
                 );
             }
         }
@@ -47,12 +46,17 @@ namespace DeenGames.Champions.Scenes
         {
             this.pickedUnits.Add(unit);
             this.Add(new Entity()
-                .Move(300 + (int)(this.pickedUnits.Count * 1.5 * IMAGE_SIZE), ChampionsGame.GAME_HEIGHT - 2 * IMAGE_SIZE)
-                .Spritesheet(Path.Combine("Content", "Images", "Specializations.png"), IMAGE_SIZE, IMAGE_SIZE, (int)unit.Specialization)
-                .Overlap(IMAGE_SIZE, IMAGE_SIZE, 0, 0,
+                .Move(300 + (int)(this.pickedUnits.Count * 1.5 * Constants.IMAGE_SIZE), ChampionsGame.GAME_HEIGHT - 2 * Constants.IMAGE_SIZE)
+                .Spritesheet(Path.Combine("Content", "Images", "Specializations.png"), Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization)
+                .Overlap(Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, 0, 0,
                     () => label.Get<TextLabelComponent>().Text = $"Level {unit.Level} {unit.Specialization.ToString()}",
                     () => label.Get<TextLabelComponent>().Text = DEFAULT_LABEL_TEXT)
             );
+
+            if (this.pickedUnits.Count == TEAM_SIZE)
+            {
+                ChampionsGame.LatestInstance.ShowScene(new BattleScene(this.pickedUnits));
+            }
         }
 
         private IList<Unit> GenerateUnits()
