@@ -16,6 +16,9 @@ namespace DeenGames.Champions.Scenes
         private Unit[] party;
         private Unit[] monsters;
 
+        // Poor man's MVVM: map of model => view-model
+        private IDictionary<Unit, Entity> battleEntities = new Dictionary<Unit, Entity>();
+
         public BattleScene(IList<Unit> party) : base()
         {
             // Grass?
@@ -35,17 +38,21 @@ namespace DeenGames.Champions.Scenes
             for (var i = 0; i < this.party.Length; i++)
             {
                 var unit = this.party[i];
-                this.Add(new Entity()
+                var entity = new Entity()
                     .Move(PLAYER_X, 200 + (int)(i * Constants.IMAGE_SIZE * 1.5))
-                    .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization));
+                    .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization);
+                this.Add(entity);
+                this.battleEntities[unit] = entity;
             }
 
             for (var i = 0; i < this.monsters.Length; i++)
             {
                 var unit = this.monsters[i];
-                this.Add(new Entity()
+                var entity = new Entity()
                     .Move(MONSTERS_X, 200 + (int)(i * Constants.IMAGE_SIZE * 1.5))
-                    .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization));
+                    .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization);
+                this.Add(entity);
+                this.battleEntities[unit] = entity;
             }
         }
     }
