@@ -5,8 +5,8 @@ namespace DeenGames.Champions
 {
     class ChampionsGame : PuffinGame
     {
-        private const int GAME_WIDTH = 960;
-        private const int GAME_HEIGHT = 540;
+        internal const int GAME_WIDTH = 960;
+        internal const int GAME_HEIGHT = 540;
         
         public ChampionsGame() : base(GAME_WIDTH, GAME_HEIGHT)
         {
