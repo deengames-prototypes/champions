@@ -1,4 +1,8 @@
-[submodule "puffin"]
-	path = puffin
+[submodule "Puffin"]
+	path = Puffin
 	url = https://github.com/deengames-prototypes/puffin
+	branch = develop
+[submodule "source/Puffin"]
+	path = source/Puffin
+	url = https://github.com/deengames-prototypes/puffin/
 	branch = develop
