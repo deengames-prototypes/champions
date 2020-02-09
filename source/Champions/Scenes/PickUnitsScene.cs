@@ -14,12 +14,16 @@ namespace DeenGames.Champions.Scenes
         private const string DEFAULT_LABEL_TEXT = "Mouse over a unit to see it's stats";
         private const int NUM_CHOICES = 20;
         private const int IMAGE_SIZE = 32;
+        private const int TEAM_SIZE = 5;
+
+        private List<Unit> pickedUnits = new List<Unit>(TEAM_SIZE);
+        private Entity label;
 
         public PickUnitsScene()
         {
             var units = this.GenerateUnits();
 
-            var label = new Entity().Label(DEFAULT_LABEL_TEXT).Move(32, ChampionsGame.GAME_HEIGHT - 32);
+            this.label = new Entity().Label(DEFAULT_LABEL_TEXT).Move(32, ChampionsGame.GAME_HEIGHT - 32);
             this.Add(label);
 
             for (var i = 0; i < units.Count; i++)
@@ -35,9 +39,22 @@ namespace DeenGames.Champions.Scenes
                     .Spritesheet(Path.Combine("Content", "Images", "Specializations.png"), IMAGE_SIZE, IMAGE_SIZE, (int)unit.Specialization)
                     .Overlap(IMAGE_SIZE, IMAGE_SIZE, 0, 0,
                         () => label.Get<TextLabelComponent>().Text = $"Level {unit.Level} {unit.Specialization.ToString()}",
-                        () => label.Get<TextLabelComponent>().Text = DEFAULT_LABEL_TEXT
-                    ));
+                        () => label.Get<TextLabelComponent>().Text = DEFAULT_LABEL_TEXT)
+                    .Mouse(() => this.OnAddedUnit(unit), IMAGE_SIZE, IMAGE_SIZE)
+                );
             }
+        }
+
+        private void OnAddedUnit(Unit unit)
+        {
+            this.pickedUnits.Add(unit);
+            this.Add(new Entity()
+                .Move(300 + (int)(this.pickedUnits.Count * 1.5 * IMAGE_SIZE), ChampionsGame.GAME_HEIGHT - 2 * IMAGE_SIZE)
+                .Spritesheet(Path.Combine("Content", "Images", "Specializations.png"), IMAGE_SIZE, IMAGE_SIZE, (int)unit.Specialization)
+                .Overlap(IMAGE_SIZE, IMAGE_SIZE, 0, 0,
+                    () => label.Get<TextLabelComponent>().Text = $"Level {unit.Level} {unit.Specialization.ToString()}",
+                    () => label.Get<TextLabelComponent>().Text = DEFAULT_LABEL_TEXT)
+            );
         }
 
         private IList<Unit> GenerateUnits()
