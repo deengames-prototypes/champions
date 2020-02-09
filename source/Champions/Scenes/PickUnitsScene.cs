@@ -32,8 +32,6 @@ namespace DeenGames.Champions.Scenes
                 var relativeX = (int)(1.5 * ((i % 5) * IMAGE_SIZE));
                 var relativeY = (int)(1.5 * (i / 5) * IMAGE_SIZE);
 
-                Console.WriteLine($"Hi there: {unit.Specialization} / {(int)unit.Specialization}");
-
                 this.Add(new Entity()
                     .Move(300 + relativeX, 100 + relativeY)
                     .Spritesheet(Path.Combine("Content", "Images", "Specializations.png"), IMAGE_SIZE, IMAGE_SIZE, (int)unit.Specialization)
@@ -61,7 +59,10 @@ namespace DeenGames.Champions.Scenes
         {
             var random = new Random();
             var toReturn = new List<Unit>();
-            var specializations = Enum.GetValues(typeof(Specialization));
+
+            var specializations = new Specialization[] {
+                Specialization.Archer, Specialization.Faris, Specialization.Lancer
+            };
 
             while (toReturn.Count < NUM_CHOICES)
             {
