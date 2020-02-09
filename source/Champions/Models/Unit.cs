@@ -16,7 +16,7 @@ namespace DeenGames.Champions.Models
         public int Strength { get; private set; }
         public int Toughness { get; private set; }
         public int Speed { get; private set; }
-        public int CurrentHealth { get; private set; }
+        public int CurrentHealth { get; internal set; }
         public int TotalHealth { get; private set; }
 
         public Unit(Specialization specialization, int level)
