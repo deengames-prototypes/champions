@@ -34,7 +34,7 @@ namespace DeenGames.Champions.Scenes
                 this.Add(new Entity()
                     .Move(300 + relativeX, 100 + relativeY)
                     .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization)
-                    .Overlap(Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, 0, 0,
+                    .Overlap(Constants.IMAGE_SIZE + 16, Constants.IMAGE_SIZE + 16, -8, -8,
                         () => label.Get<TextLabelComponent>().Text = $"Level {unit.Level} {unit.Specialization.ToString()}",
                         () => label.Get<TextLabelComponent>().Text = DEFAULT_LABEL_TEXT)
                     .Mouse(() => this.OnAddedUnit(unit), Constants.IMAGE_SIZE, Constants.IMAGE_SIZE)
@@ -48,7 +48,7 @@ namespace DeenGames.Champions.Scenes
             this.Add(new Entity()
                 .Move(300 + (int)(this.pickedUnits.Count * 1.5 * Constants.IMAGE_SIZE), ChampionsGame.GAME_HEIGHT - 2 * Constants.IMAGE_SIZE)
                 .Spritesheet(Path.Combine("Content", "Images", "Specializations.png"), Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization)
-                .Overlap(Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, 0, 0,
+                .Overlap(Constants.IMAGE_SIZE + 16, Constants.IMAGE_SIZE + 16, -8, -8,
                     () => label.Get<TextLabelComponent>().Text = $"Level {unit.Level} {unit.Specialization.ToString()}",
                     () => label.Get<TextLabelComponent>().Text = DEFAULT_LABEL_TEXT)
             );
