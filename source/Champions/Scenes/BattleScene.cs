@@ -12,7 +12,7 @@ namespace DeenGames.Champions.Scenes
     class BattleScene : Scene
     {
         private readonly int PLAYER_X = ChampionsGame.GAME_WIDTH - MONSTERS_X - Constants.IMAGE_SIZE;
-        private const int MONSTERS_X = 100;
+        private const int MONSTERS_X = 300;
 
         private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(1);
         private DateTime lastActionTime;
@@ -32,10 +32,12 @@ namespace DeenGames.Champions.Scenes
             // Grass?
             this.BackgroundColour = 0x3c5956;
 
-            partyArrow = new Entity().Move(PLAYER_X - Constants.IMAGE_SIZE, 200)
+            partyArrow = new Entity().Move(PLAYER_X - (Constants.IMAGE_SIZE), 200)
                 .Sprite(Path.Combine("Content", "Images", "Arrow-Right.png"));
+            partyArrow.Get<SpriteComponent>().IsVisible = false;
             this.Add(partyArrow);
 
+            // Extra +1 on IMAGE_SIZE to position on RHS
             monsterArrow = new Entity().Move(MONSTERS_X + (2 * Constants.IMAGE_SIZE), 200)
                 .Sprite(Path.Combine("Content", "Images", "Arrow-Left.png"));
             this.Add(monsterArrow);
@@ -54,22 +56,20 @@ namespace DeenGames.Champions.Scenes
             for (var i = 0; i < this.party.Count; i++)
             {
                 var unit = this.party[i];
-                var entity = new Entity()
-                    .Move(PLAYER_X, 200 + (int)(i * Constants.IMAGE_SIZE * 1.5))
-                    .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization);
-                this.Add(entity);
+                var entity = new Entity().Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization);
                 this.battleEntities[unit] = entity;
+                this.Add(entity);
             }
 
             for (var i = 0; i < this.monsters.Count; i++)
             {
                 var unit = this.monsters[i];
-                var entity = new Entity()
-                    .Move(MONSTERS_X, 200 + (int)(i * Constants.IMAGE_SIZE * 1.5))
-                    .Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization);
-                this.Add(entity);
+                var entity = new Entity().Spritesheet(Constants.SpecializationsImageFile, Constants.IMAGE_SIZE, Constants.IMAGE_SIZE, (int)unit.Specialization);
                 this.battleEntities[unit] = entity;
+                this.Add(entity);
             }
+
+            this.ResetPositions();
 
             lastActionTime = DateTime.Now;
         }
@@ -99,25 +99,32 @@ namespace DeenGames.Champions.Scenes
 
         private void ExecuteTurn(Unit next)
         {
-            // TODO: AI based on level, etc.
+            var isParty = this.party.Contains(next);
 
+            // TODO: AI based on level, etc.
             // Random target. TODO: intelligently target ... weakest? strongest? etc.
             Unit target;
-            if (this.party.Contains(next))
+            if (isParty)
             {
                 target = this.monsters[random.Next(this.monsters.Count)];
-                this.partyArrow.Y = this.battleEntities[next].Y;
-                this.partyArrow.Get<SpriteComponent>().IsVisible = true;
-                this.monsterArrow.Get<SpriteComponent>().IsVisible = false;
+                
+                this.partyArrow.Get<SpriteComponent>().IsVisible = false;
+                this.monsterArrow.Get<SpriteComponent>().IsVisible = true;
+                this.monsterArrow.Y = this.battleEntities[target].Y;
             }
             else
             {
                 target = this.party[random.Next(this.party.Count)];
+
                 this.monsterArrow.Y = this.battleEntities[next].Y;
-                this.partyArrow.Get<SpriteComponent>().IsVisible = false;
-                this.monsterArrow.Get<SpriteComponent>().IsVisible = true;
+                this.monsterArrow.Get<SpriteComponent>().IsVisible = false;
+                this.partyArrow.Get<SpriteComponent>().IsVisible = true;
+                this.partyArrow.Y = this.battleEntities[target].Y;
             }
             
+            this.ResetPositions();
+            this.battleEntities[next].X += isParty ? -Constants.IMAGE_SIZE : Constants.IMAGE_SIZE;
+
             // Basic attack. TODO: intelligently pick a move.
             target.CurrentHealth -= next.Strength;
             if (target.CurrentHealth <= 0)
@@ -146,6 +153,21 @@ namespace DeenGames.Champions.Scenes
             }
 
             Console.WriteLine($"{next.Specialization} attacks {target.Specialization}! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}");
+        }
+
+        private void ResetPositions()
+        {
+            for (var i = 0; i < this.party.Count; i++)
+            {
+                var unit = this.party[i];
+                this.battleEntities[unit].Move(PLAYER_X, 200 + (int)(i * Constants.IMAGE_SIZE * 1.5));
+            }
+
+            for (var i = 0; i < this.monsters.Count; i++)
+            {
+                var unit = this.monsters[i];
+                this.battleEntities[unit].Move(MONSTERS_X, 200 + (int)(i * Constants.IMAGE_SIZE * 1.5));
+            }
         }
 
         private List<Unit> GenerateRoundOfTurns()
