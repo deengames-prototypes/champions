@@ -23,6 +23,7 @@ namespace DeenGames.Champions.Scenes
         private Random random = new Random();
         private Entity partyArrow;
         private Entity monsterArrow;
+        private Entity news;
 
         // Poor man's MVVM: map of model => view-model
         private IDictionary<Unit, Entity> battleEntities = new Dictionary<Unit, Entity>();
@@ -41,6 +42,9 @@ namespace DeenGames.Champions.Scenes
             monsterArrow = new Entity().Move(MONSTERS_X + (2 * Constants.IMAGE_SIZE), 200)
                 .Sprite(Path.Combine("Content", "Images", "Arrow-Left.png"));
             this.Add(monsterArrow);
+
+            news = new Entity().Move(400, 100).Label("");
+            this.Add(news);
 
             var random = new Random();
             this.party = party;
@@ -160,7 +164,7 @@ namespace DeenGames.Champions.Scenes
                  }
             }
 
-            Console.WriteLine($"{next.Specialization} attacks {target.Specialization}! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}");
+            news.Get<TextLabelComponent>().Text = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
         }
 
         private void ResetPositions()
