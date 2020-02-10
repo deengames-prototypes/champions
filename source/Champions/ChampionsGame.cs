@@ -1,5 +1,7 @@
 using Puffin.Infrastructure.MonoGame;
 using DeenGames.Champions.Scenes;
+using System.Collections.Generic;
+using DeenGames.Champions.Models;
 
 namespace DeenGames.Champions
 {
@@ -17,7 +19,15 @@ namespace DeenGames.Champions
 
         override protected void Ready()
         {
-            this.ShowScene(new PickUnitsScene());
+            //this.ShowScene(new PickUnitsScene());
+            this.ShowScene(new BattleScene(new List<Unit>
+            {
+                new Unit(Specialization.Faris, 1),
+                new Unit(Specialization.Archer, 2),
+                new Unit(Specialization.Lancer, 3),
+                new Unit(Specialization.Archer, 2),
+                new Unit(Specialization.Faris, 1),
+            }));
         }
     }
 }
