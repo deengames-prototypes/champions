@@ -13,8 +13,11 @@ namespace DeenGames.Champions.Scenes
     {
         private readonly int PLAYER_X = ChampionsGame.GAME_WIDTH - MONSTERS_X - Constants.IMAGE_SIZE;
         private const int MONSTERS_X = 300;
+        
+        // Level 10 for a medium-intelligence creature
+        private const int ALWAYS_TARGET_WEAKEST_AT_INTELLIGENCE = 200;
 
-        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(1.5);
+        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(2);
         private DateTime lastActionTime;
         private List<Unit> turns = new List<Unit>();
 
@@ -107,38 +110,79 @@ namespace DeenGames.Champions.Scenes
 
         private void ExecuteTurn(Unit next)
         {
-            var isParty = this.party.Contains(next);
+            var isPartysTurn = this.party.Contains(next);
 
             // TODO: AI based on level, etc.
             // Random target. TODO: intelligently target ... weakest? strongest? etc.
-            Unit target;
-            if (isParty)
+            Unit target = this.PickTargetFor(next, isPartysTurn);
+
+            this.RepositionUnits(isPartysTurn, next, target);
+            
+            // Basic attack. TODO: intelligently pick a move.
+            target.CurrentHealth -= next.Strength;
+            this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
+
+            this.RemoveTargetIfDead(target);
+
+            // Update news label
+            // TODO: show the last ~3-4 messages?
+            news.Get<TextLabelComponent>().Text = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
+        }
+
+        private Unit PickTargetFor(Unit next, bool isPartysTurn)
+        {
+            var targets = isPartysTurn ? this.monsters : this.party;
+            var targetWeakest = next.Intelligence <= random.Next(ALWAYS_TARGET_WEAKEST_AT_INTELLIGENCE);
+            if (targetWeakest)
             {
-                target = this.monsters[random.Next(this.monsters.Count)];
-                
+                var minHealth = targets.Min(t => t.CurrentHealth);
+                return targets.First(t => t.CurrentHealth == minHealth);
+            }
+            else
+            {
+                return targets[random.Next(targets.Count)];
+            }
+        }
+
+        private void RepositionUnits(bool isPartysTurn, Unit next, Unit target)
+        {
+            if (isPartysTurn)
+            {
                 this.partyArrow.Get<SpriteComponent>().IsVisible = false;
                 this.monsterArrow.Get<SpriteComponent>().IsVisible = true;
                 this.monsterArrow.Y = this.battleEntities[target].Y;
             }
             else
             {
-                target = this.party[random.Next(this.party.Count)];
-
                 this.monsterArrow.Y = this.battleEntities[next].Y;
                 this.monsterArrow.Get<SpriteComponent>().IsVisible = false;
                 this.partyArrow.Get<SpriteComponent>().IsVisible = true;
                 this.partyArrow.Y = this.battleEntities[target].Y;
             }
-            
+
             this.ResetPositions();
+
             // Acting unit stands in front of the rest
-            this.battleEntities[next].X += isParty ? -Constants.IMAGE_SIZE : Constants.IMAGE_SIZE;
+            this.battleEntities[next].X += isPartysTurn ? -Constants.IMAGE_SIZE : Constants.IMAGE_SIZE;
+        }
 
-            ////////// actual attack
-            // Basic attack. TODO: intelligently pick a move.
-            target.CurrentHealth -= next.Strength;
-            this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
+        private void ResetPositions()
+        {
+            for (var i = 0; i < this.party.Count; i++)
+            {
+                var unit = this.party[i];
+                this.battleEntities[unit].Move(PLAYER_X, 200 + (int)(i * Constants.IMAGE_SIZE * 2));
+            }
 
+            for (var i = 0; i < this.monsters.Count; i++)
+            {
+                var unit = this.monsters[i];
+                this.battleEntities[unit].Move(MONSTERS_X, 200 + (int)(i * Constants.IMAGE_SIZE * 2));
+            }
+        }
+        
+        private void RemoveTargetIfDead(Unit target)
+        {
             if (target.CurrentHealth <= 0)
             {
                 this.turns.RemoveAll(u => u == target);
@@ -162,23 +206,6 @@ namespace DeenGames.Champions.Scenes
                         //ChampionsGame.LatestInstance.ShowScene(...)
                     }
                  }
-            }
-
-            news.Get<TextLabelComponent>().Text = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
-        }
-
-        private void ResetPositions()
-        {
-            for (var i = 0; i < this.party.Count; i++)
-            {
-                var unit = this.party[i];
-                this.battleEntities[unit].Move(PLAYER_X, 200 + (int)(i * Constants.IMAGE_SIZE * 2));
-            }
-
-            for (var i = 0; i < this.monsters.Count; i++)
-            {
-                var unit = this.monsters[i];
-                this.battleEntities[unit].Move(MONSTERS_X, 200 + (int)(i * Constants.IMAGE_SIZE * 2));
             }
         }
 
