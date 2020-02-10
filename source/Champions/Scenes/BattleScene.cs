@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using DeenGames.Champions.Models;
 using Puffin.Core;
 using Puffin.Core.Ecs;
+using Puffin.Core.Ecs.Components;
 
 namespace DeenGames.Champions.Scenes
 {
@@ -12,13 +14,15 @@ namespace DeenGames.Champions.Scenes
         private readonly int PLAYER_X = ChampionsGame.GAME_WIDTH - MONSTERS_X - Constants.IMAGE_SIZE;
         private const int MONSTERS_X = 100;
 
-        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(0.75);
+        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(1);
         private DateTime lastActionTime;
         private List<Unit> turns = new List<Unit>();
 
         private List<Unit> party;
         private List<Unit> monsters;
         private Random random = new Random();
+        private Entity partyArrow;
+        private Entity monsterArrow;
 
         // Poor man's MVVM: map of model => view-model
         private IDictionary<Unit, Entity> battleEntities = new Dictionary<Unit, Entity>();
@@ -27,7 +31,15 @@ namespace DeenGames.Champions.Scenes
         {
             // Grass?
             this.BackgroundColour = 0x3c5956;
-            
+
+            partyArrow = new Entity().Move(PLAYER_X - Constants.IMAGE_SIZE, 200)
+                .Sprite(Path.Combine("Content", "Images", "Arrow-Right.png"));
+            this.Add(partyArrow);
+
+            monsterArrow = new Entity().Move(MONSTERS_X + (2 * Constants.IMAGE_SIZE), 200)
+                .Sprite(Path.Combine("Content", "Images", "Arrow-Left.png"));
+            this.Add(monsterArrow);
+
             var random = new Random();
             this.party = party;
             this.monsters = new List<Unit>()
@@ -94,10 +106,16 @@ namespace DeenGames.Champions.Scenes
             if (this.party.Contains(next))
             {
                 target = this.monsters[random.Next(this.monsters.Count)];
+                this.partyArrow.Y = this.battleEntities[next].Y;
+                this.partyArrow.Get<SpriteComponent>().IsVisible = true;
+                this.monsterArrow.Get<SpriteComponent>().IsVisible = false;
             }
             else
             {
                 target = this.party[random.Next(this.party.Count)];
+                this.monsterArrow.Y = this.battleEntities[next].Y;
+                this.partyArrow.Get<SpriteComponent>().IsVisible = false;
+                this.monsterArrow.Get<SpriteComponent>().IsVisible = true;
             }
             
             // Basic attack. TODO: intelligently pick a move.
