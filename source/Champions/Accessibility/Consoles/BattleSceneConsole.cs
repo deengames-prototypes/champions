@@ -42,9 +42,14 @@ namespace DeenGames.Champions.Accessibility.Consoles
 
         private void ProcessCommand(string text)
         {
-            if (text == "help" || text == "h")
+            if (text == "quit" || text == "q")
             {
-                Console.WriteLine("Commands: h for help, i for inventory, p to use a potion");
+                Console.WriteLine("Bye!");
+                Environment.Exit(0);
+            }
+            else if (text == "help" || text == "h")
+            {
+                Console.WriteLine("Commands: h for help, i for inventory, p to use a potion, s for stats");
             }
             else if (text == "i" || text == "inv")
             {
@@ -79,8 +84,13 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     var healed = (int)Math.Ceiling(Constants.HEAL_POTION_PERCENT * target.TotalHealth);
                     target.CurrentHealth = Math.Min(target.TotalHealth, target.CurrentHealth + healed);
                     Console.WriteLine($"Healed {healed} HP, {target.Specialization} now has {target.CurrentHealth} out of {target.TotalHealth} health.");
+                    Thread.Sleep(2000);
                     scene.IsActive = true;
                 }
+            }
+            else if (text == "s" || text == "stats")
+            {
+                this.StateParties(this.party, this.monsters, true);
             }
         }
 
@@ -90,21 +100,45 @@ namespace DeenGames.Champions.Accessibility.Consoles
             this.replThread.Join();
         }
 
-        internal void StateParties(List<Unit> party, List<Unit> monsters)
+        internal void StateParties(List<Unit> party, List<Unit> monsters, bool stateHealth = false)
         {
+            this.scene.IsActive = false;
+
             this.party = party;
             this.monsters = monsters;
 
             StringBuilder partyText = new StringBuilder();
             
-            partyText.Append("Your party includes: ");
+            partyText.Append("Your party is: ");
             foreach (var member in party)
             {
-                partyText.Append($"A level {member.Level} {member.Specialization}, ");
+                var health = "";
+                if (stateHealth)
+                {
+                    health = $" with {member.CurrentHealth} out of {member.TotalHealth} health";
+                }
+                partyText.Append($"A level {member.Level} {member.Specialization} {health}, ");
             }
             
             partyText.Append("They are facing: 5 slimes.");
+            if (stateHealth)
+            {
+                partyText.Append(" Their health is ");
+                foreach (var slime in monsters)
+                {
+                    partyText.Append($"{slime.CurrentHealth} out of {slime.TotalHealth}, ");
+                }
+            }
+            partyText.Append('.');
             Console.WriteLine(partyText.ToString());
+
+            Thread.Sleep(4000);
+            this.scene.IsActive = true;
+        }
+
+        internal void Print(string message)
+        {
+            Console.WriteLine(message);
         }
     }
 }
