@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using DeenGames.Champions.Accessibility;
 using DeenGames.Champions.Accessibility.Consoles;
 using DeenGames.Champions.Models;
 using Puffin.Core;
@@ -33,10 +34,13 @@ namespace DeenGames.Champions.Scenes
         // Poor man's MVVM: map of model => view-model
         private IDictionary<Unit, Entity> battleEntities = new Dictionary<Unit, Entity>();
 
-        private BattleSceneConsole console = new BattleSceneConsole();
+        private BoxedInt numPotions = new BoxedInt(5);
+        private BattleSceneConsole console;
 
         public BattleScene(List<Unit> party) : base()
         {
+            console = new BattleSceneConsole(numPotions);
+
             // Grass?
             this.BackgroundColour = 0x3c5956;
 
@@ -133,6 +137,8 @@ namespace DeenGames.Champions.Scenes
             // Update news label
             // TODO: show the last ~3-4 messages?
             news.Get<TextLabelComponent>().Text = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
+
+            numPotions.Value -= 1;
         }
 
         private Unit PickTargetFor(Unit next, bool isPartysTurn)
