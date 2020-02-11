@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using DeenGames.Champions.Accessibility.Consoles;
 using DeenGames.Champions.Models;
 using Puffin.Core;
 using Puffin.Core.Ecs;
@@ -30,6 +32,8 @@ namespace DeenGames.Champions.Scenes
 
         // Poor man's MVVM: map of model => view-model
         private IDictionary<Unit, Entity> battleEntities = new Dictionary<Unit, Entity>();
+
+        private BattleSceneConsole console = new BattleSceneConsole();
 
         public BattleScene(List<Unit> party) : base()
         {
@@ -82,7 +86,9 @@ namespace DeenGames.Champions.Scenes
 
             this.ResetPositions();
 
-            lastActionTime = DateTime.Now;
+            this.lastActionTime = DateTime.Now;
+            
+            this.console.StateParties(this.party, this.monsters);
         }
 
         override public void Update(int elapsedMilliseconds)
