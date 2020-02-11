@@ -24,7 +24,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
 
         public BattleSceneConsole(BattleScene scene, BoxedInt numPotions)
         {
-            // This is bad. FIgure out another way to share.
+            // This is bad. Use an event bus instead.
             this.scene = scene;
             this.numPotions = numPotions;
 
@@ -78,6 +78,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
                         Console.WriteLine($"Try again - enter a number from 0 to {alive.Count() - 1}");
                     }
 
+                    // Also bad: game logic shouldn't live here
                     this.numPotions.Value -= 1;
 
                     var target = alive.ElementAt(partyNum);
