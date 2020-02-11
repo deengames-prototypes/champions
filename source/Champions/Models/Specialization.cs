@@ -1,6 +1,6 @@
 namespace DeenGames.Champions.Models
 {
-    enum Specialization
+    public enum Specialization
     {
         Faris = 0, // Knight
         Archer = 1,

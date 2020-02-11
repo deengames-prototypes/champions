@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using DeenGames.Champions.Accessibility;
 using DeenGames.Champions.Accessibility.Consoles;
 using DeenGames.Champions.Models;
@@ -12,8 +11,10 @@ using Puffin.Core.Ecs.Components;
 
 namespace DeenGames.Champions.Scenes
 {
-    class BattleScene : Scene
+    public class BattleScene : Scene
     {
+        public bool IsActive { get; set; } = true;
+
         private readonly int PLAYER_X = ChampionsGame.GAME_WIDTH - MONSTERS_X - Constants.IMAGE_SIZE;
         private const int MONSTERS_X = 300;
         
@@ -39,7 +40,7 @@ namespace DeenGames.Champions.Scenes
 
         public BattleScene(List<Unit> party) : base()
         {
-            console = new BattleSceneConsole(numPotions);
+            console = new BattleSceneConsole(this, numPotions);
 
             // Grass?
             this.BackgroundColour = 0x3c5956;
@@ -97,6 +98,12 @@ namespace DeenGames.Champions.Scenes
 
         override public void Update(int elapsedMilliseconds)
         {
+            if (!this.IsActive)
+            {
+                lastActionTime = DateTime.Now; // Pretend time is frozen
+                return;
+            }
+
             var now = DateTime.Now;
             if ((now - lastActionTime) < DELAY_BETWEEN_ACTIONS)
             {
@@ -137,8 +144,6 @@ namespace DeenGames.Champions.Scenes
             // Update news label
             // TODO: show the last ~3-4 messages?
             news.Get<TextLabelComponent>().Text = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
-
-            numPotions.Value -= 1;
         }
 
         private Unit PickTargetFor(Unit next, bool isPartysTurn)

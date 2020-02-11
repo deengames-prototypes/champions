@@ -2,7 +2,7 @@ using System;
 
 namespace DeenGames.Champions.Models
 {
-    class Unit
+    public class Unit
     {
         // TODO: move into unit factory
         private const int HEALTH_PER_LEVEL = 75;
