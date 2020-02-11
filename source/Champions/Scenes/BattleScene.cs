@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using DeenGames.Champions.Accessibility;
 using DeenGames.Champions.Accessibility.Consoles;
 using DeenGames.Champions.Models;
@@ -32,6 +33,11 @@ namespace DeenGames.Champions.Scenes
         private Entity monsterArrow;
         private Entity news;
 
+        /// Audios
+        private Entity deathRattle;
+        private Dictionary<Specialization, Entity> audios = new Dictionary<Specialization, Entity>();
+        /// End audios
+
         // Poor man's MVVM: map of model => view-model
         private IDictionary<Unit, Entity> battleEntities = new Dictionary<Unit, Entity>();
 
@@ -41,6 +47,8 @@ namespace DeenGames.Champions.Scenes
         public BattleScene(List<Unit> party) : base()
         {
             console = new BattleSceneConsole(this, numPotions);
+
+            this.LoadSounds();
 
             // Grass?
             this.BackgroundColour = 0x3c5956;
@@ -96,6 +104,18 @@ namespace DeenGames.Champions.Scenes
             this.console.StateParties(this.party, this.monsters);
         }
 
+        private void LoadSounds()
+        {
+            deathRattle = new Entity().Audio(Path.Combine("Content", "Audio", "Died.wav"));
+            Add(deathRattle);
+
+            foreach (Specialization s in (Specialization[]) Enum.GetValues(typeof(Specialization)))
+            {
+                this.audios[s] = new Entity().Audio(Path.Combine("Content", "Audio", $"{s}.wav"));
+                Add(this.audios[s]);
+            }
+        }
+
         override public void Update(int elapsedMilliseconds)
         {
             if (!this.IsActive)
@@ -144,8 +164,16 @@ namespace DeenGames.Champions.Scenes
             // Update news label
             // TODO: show the last ~3-4 messages?
             var message = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
+
             news.Get<TextLabelComponent>().Text = message;
             console.Print(message);
+
+            this.audios[next.Specialization].Get<AudioComponent>().Play();
+            if (target.CurrentHealth <= 0)
+            {
+                Thread.Sleep(500);
+                deathRattle.Get<AudioComponent>().Play();
+            }
         }
 
         private Unit PickTargetFor(Unit next, bool isPartysTurn)
