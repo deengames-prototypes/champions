@@ -52,11 +52,11 @@ namespace DeenGames.Champions.Scenes
             var random = new Random();
             this.monsters = new List<Unit>()
             {
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
+                new Unit(1, Specialization.Slime, random.Next(1, 4)),
+                new Unit(2, Specialization.Slime, random.Next(1, 4)),
+                new Unit(3, Specialization.Slime, random.Next(1, 4)),
+                new Unit(4, Specialization.Slime, random.Next(1, 4)),
+                new Unit(5, Specialization.Slime, random.Next(1, 4)),
             };
 
             console = new BattleSceneConsole(this, party, monsters, numPotions);
@@ -171,7 +171,7 @@ namespace DeenGames.Champions.Scenes
                 target.CurrentHealth -= next.Strength;
                 this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
 
-                this.RemoveTargetIfDead(target);
+                this.CheckForGameOver(target);
 
                 // Update news label
                 // TODO: show the last ~3-4 messages?
@@ -192,6 +192,8 @@ namespace DeenGames.Champions.Scenes
         private Unit PickTargetFor(Unit next, bool isPartysTurn)
         {
             var targets = isPartysTurn ? this.monsters : this.party;
+            targets = targets.Where(t => t.CurrentHealth > 0).ToList();
+
             var targetWeakest = next.Intelligence <= random.Next(ALWAYS_TARGET_WEAKEST_AT_INTELLIGENCE);
             if (targetWeakest)
             {
@@ -241,41 +243,27 @@ namespace DeenGames.Champions.Scenes
             }
         }
         
-        private void RemoveTargetIfDead(Unit target)
+        private void CheckForGameOver(Unit target)
         {
-            if (target.CurrentHealth <= 0)
+            if (this.monsters.All(m => m.CurrentHealth <= 0))
             {
-                this.turns.RemoveAll(u => u == target);
-                this.Remove(this.battleEntities[target]);
-                
-                if (this.monsters.Contains(target))
-                {
-                    this.monsters.Remove(target);
-                    if (!this.monsters.Any())
-                    {
-                        // VICTORY~!
-                        this.IsComplete = true;
-                        this.console.Print("You have won the battle!");
-                    }
-                 }
-                 else
-                 {
-                    this.party.Remove(target);
-                    if (!this.party.Any())
-                    {
-                        // Defeat! :(
-                        this.IsComplete = true;
-                        this.console.Print("You have lost the battle!");
-                    }
-                 }
+                // VICTORY~!
+                this.IsComplete = true;
+                this.console.Print("You have won the battle!");
+            }
+            else if (this.party.All(p => p.CurrentHealth <= 0))
+            {
+                // Defeat! :(
+                this.IsComplete = true;
+                this.console.Print("You have lost the battle!");
             }
         }
 
         private List<Unit> GenerateRoundOfTurns()
         {
             // Simple: players first, speed-descending; then monsters first, speed-descending
-            var turns = this.party.OrderByDescending(u => u.Speed).ToList();
-            turns.AddRange(this.monsters.OrderByDescending(u => u.Speed));
+            var turns = this.party.Where(p => p.CurrentHealth > 0).OrderByDescending(u => u.Speed).ToList();
+            turns.AddRange(this.monsters.Where(m => m.CurrentHealth > 0).OrderByDescending(u => u.Speed));
             return turns;
         }
     }

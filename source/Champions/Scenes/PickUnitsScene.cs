@@ -68,11 +68,13 @@ namespace DeenGames.Champions.Scenes
                 Specialization.Archer, Specialization.Faris, Specialization.Lancer
             };
 
+            int n = 0;
             while (toReturn.Count < NUM_CHOICES)
             {
                 var specialization = (Specialization)specializations.GetValue(random.Next(specializations.Length));
                 var level = random.Next(1, 4);
-                toReturn.Add(new Unit(specialization, level));
+                toReturn.Add(new Unit(n, specialization, level));
+                n++;
             }
 
             return toReturn;

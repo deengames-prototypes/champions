@@ -24,11 +24,11 @@ namespace DeenGames.Champions
             //this.ShowScene(new PickUnitsScene());
             this.ShowScene(new BattleScene(new List<Unit>
             {
-                new Unit(Specialization.Faris, 2),
-                new Unit(Specialization.Archer, 2),
-                new Unit(Specialization.Lancer, 2),
-                new Unit(Specialization.Archer, 3),
-                new Unit(Specialization.Faris, 3),
+                new Unit(1, Specialization.Faris, 2),
+                new Unit(1, Specialization.Archer, 2),
+                new Unit(1, Specialization.Lancer, 2),
+                new Unit(2, Specialization.Archer, 3),
+                new Unit(2, Specialization.Faris, 3),
             }));
         }
     }
