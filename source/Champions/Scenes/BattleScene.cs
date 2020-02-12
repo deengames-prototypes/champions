@@ -103,7 +103,8 @@ namespace DeenGames.Champions.Scenes
 
             this.lastActionTime = DateTime.Now;
             
-            this.console.StateParties(this.party, this.monsters);
+            this.console.Print("The battle begins! h for help, p to pause!");
+            Thread.Sleep(1000);
         }
         
         override public void Ready()

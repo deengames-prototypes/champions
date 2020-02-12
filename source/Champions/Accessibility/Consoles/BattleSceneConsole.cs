@@ -52,13 +52,23 @@ namespace DeenGames.Champions.Accessibility.Consoles
             }
             else if (input == 'h')
             {
-                Console.WriteLine("Commands: h for help, i for inventory, p to use a potion, s for stats");
+                Console.WriteLine("Commands: h for help, i for inventory, p to pause, o to use a potion, s for stats");
             }
             else if (input ==  'i')
             {
                 Console.WriteLine($"Inventory: {numPotions.Value} potions");
             }
             else if (input == 'p')
+            {
+                this.scene.IsActive = !this.scene.IsActive;
+                if (this.scene.IsActive)
+                {
+                    Console.WriteLine("Unpaused. Press p to pause.");
+                } else {
+                    Console.WriteLine("Paused. Press p to unpause.");
+                }
+            }
+            else if (input == 'o') // use potion
             {
                 if (numPotions.Value == 0)
                 {
