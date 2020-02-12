@@ -47,14 +47,41 @@ namespace DeenGames.Champions.Accessibility.Consoles
 
         private void ProcessCommand(char input)
         {
-            if (input == 'q')
+            if (input == 'q') {
+                this.PrintStats(this.monsters[0]);
+            } else if (input == 'w') {
+                this.PrintStats(this.monsters[1]);
+            } else if (input == 'e') {
+                this.PrintStats(this.monsters[2]);
+            } else if (input == 'r') {
+                this.PrintStats(this.monsters[3]);
+            } else if (input == 't') {
+                this.PrintStats(this.monsters[4]);
+            }
+            
+            else if (input == 'a') {
+                this.PrintStats(this.party[0]);
+            } else if (input == 's') {
+                this.PrintStats(this.party[1]);
+            } else if (input == 'd') {
+                this.PrintStats(this.party[2]);
+            } else if (input == 'f') {
+                this.PrintStats(this.party[3]);
+            } else if (input == 'g') {
+                this.PrintStats(this.party[4]);
+            }
+
+            else if (input == 'x')
             {
                 Console.WriteLine("Bye!");
                 Environment.Exit(0);
             }
             else if (input == 'h')
             {
-                Console.WriteLine("Commands: h for help, i for inventory, p to pause, o to use a potion, s for stats");
+                scene.IsActive = false;
+                Console.WriteLine("Commands: h for help, i for inventory, p to pause, o to use a potion, g for info, x to quit. Q W E R T to check monster stats, A S D F G to check party member stats.");
+                Thread.Sleep(3000);
+                scene.IsActive = true;
             }
             else if (input ==  'i')
             {
@@ -104,7 +131,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     scene.IsActive = true;
                 }
             }
-            else if (input == 's')
+            else if (input == 'g')
             {
                 this.StateParties(true);
             }
@@ -114,6 +141,11 @@ namespace DeenGames.Champions.Accessibility.Consoles
         {
             this.isRunning = false;
             this.replThread.Join();
+        }
+
+        internal void PrintStats(Unit unit)
+        {
+            Console.WriteLine($"{unit.Name} has {unit.CurrentHealth} out of {unit.TotalHealth} health");
         }
 
         internal void StateParties(bool stateHealth = false)
