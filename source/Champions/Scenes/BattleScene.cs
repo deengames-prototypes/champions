@@ -48,7 +48,18 @@ namespace DeenGames.Champions.Scenes
 
         public BattleScene(List<Unit> party) : base()
         {
-            console = new BattleSceneConsole(this, numPotions);
+            this.party = party;
+            var random = new Random();
+            this.monsters = new List<Unit>()
+            {
+                new Unit(Specialization.Slime, random.Next(1, 4)),
+                new Unit(Specialization.Slime, random.Next(1, 4)),
+                new Unit(Specialization.Slime, random.Next(1, 4)),
+                new Unit(Specialization.Slime, random.Next(1, 4)),
+                new Unit(Specialization.Slime, random.Next(1, 4)),
+            };
+
+            console = new BattleSceneConsole(this, party, monsters, numPotions);
 
             this.LoadSounds();
 
@@ -68,17 +79,7 @@ namespace DeenGames.Champions.Scenes
             news = new Entity().Move(400, 100).Label("");
             this.Add(news);
 
-            var random = new Random();
-            this.party = party;
-            this.monsters = new List<Unit>()
-            {
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-                new Unit(Specialization.Slime, random.Next(1, 4)),
-            };
-
+            
             for (var i = 0; i < this.party.Count; i++)
             {
                 var unit = this.party[i];
@@ -174,7 +175,7 @@ namespace DeenGames.Champions.Scenes
 
                 // Update news label
                 // TODO: show the last ~3-4 messages?
-                var message = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
+                var message = $"{next.Name} attacks {target.Name} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Name} dies!" : "")}";
 
                 news.Get<TextLabelComponent>().Text = message;
                 console.Print(message);

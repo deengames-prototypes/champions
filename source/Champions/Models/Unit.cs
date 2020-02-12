@@ -4,12 +4,15 @@ namespace DeenGames.Champions.Models
 {
     public class Unit
     {
+        private static uint nextId = 0;
+
         // TODO: move into unit factory
         private const int HEALTH_PER_LEVEL = 75;
         private const int HIGH_STAT_MULTIPLIER = 30;
         private const int MEDIUM_STAT_MULTIPLIER = 20;
         private const int LOW_STAT_MULTIPLIER = 10;
 
+        public readonly uint Id;
         // Like your class/job eg. knight
         public Specialization Specialization { get; set; }
         public int Level { get; } = 1;
@@ -20,8 +23,11 @@ namespace DeenGames.Champions.Models
         public int CurrentHealth { get; internal set; }
         public int TotalHealth { get; private set; }
 
+        public string Name { get { return $"{this.Specialization} {this.Id}"; } }
+
         public Unit(Specialization specialization, int level)
         {
+            this.Id = Unit.nextId++;
             this.Specialization = specialization;
             this.Level = level;
             this.SetStats();

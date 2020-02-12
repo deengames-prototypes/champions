@@ -22,10 +22,12 @@ namespace DeenGames.Champions.Accessibility.Consoles
         // Boxed int
         private BoxedInt numPotions;
 
-        public BattleSceneConsole(BattleScene scene, BoxedInt numPotions)
+        public BattleSceneConsole(BattleScene scene, List<Unit> party, List<Unit> monsters, BoxedInt numPotions)
         {
             // This is bad. Use an event bus instead.
             this.scene = scene;
+            this.party = party;
+            this.monsters = monsters;
             this.numPotions = numPotions;
         }
         
@@ -82,7 +84,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     foreach (var i in Enumerable.Range(0, alive.Count()))
                     {
                         var member = alive.ElementAt(i);
-                        Console.WriteLine($"{i}: {member.Specialization}, {member.CurrentHealth} out of {member.TotalHealth} health");
+                        Console.WriteLine($"{i}: {member.Name}, {member.CurrentHealth} out of {member.TotalHealth} health");
                     }
                     
                     var partyNum = -1;
@@ -97,14 +99,14 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     var target = alive.ElementAt(partyNum);
                     var healed = (int)Math.Ceiling(Constants.HEAL_POTION_PERCENT * target.TotalHealth);
                     target.CurrentHealth = Math.Min(target.TotalHealth, target.CurrentHealth + healed);
-                    Console.WriteLine($"Healed {healed} HP, {target.Specialization} now has {target.CurrentHealth} out of {target.TotalHealth} health.");
+                    Console.WriteLine($"Healed {healed} HP, {target.Name} now has {target.CurrentHealth} out of {target.TotalHealth} health.");
                     Thread.Sleep(2000);
                     scene.IsActive = true;
                 }
             }
             else if (input == 's')
             {
-                this.StateParties(this.party, this.monsters, true);
+                this.StateParties(true);
             }
         }
 
@@ -114,12 +116,9 @@ namespace DeenGames.Champions.Accessibility.Consoles
             this.replThread.Join();
         }
 
-        internal void StateParties(List<Unit> party, List<Unit> monsters, bool stateHealth = false)
+        internal void StateParties(bool stateHealth = false)
         {
             this.scene.IsActive = false;
-
-            this.party = party;
-            this.monsters = monsters;
 
             StringBuilder partyText = new StringBuilder();
             
@@ -134,13 +133,13 @@ namespace DeenGames.Champions.Accessibility.Consoles
                 partyText.Append($"A level {member.Level} {member.Specialization} {health}, ");
             }
             
-            partyText.Append("They are facing: 5 slimes.");
+            partyText.Append($"They are facing: {this.monsters.Count} slimes.");
             if (stateHealth)
             {
                 partyText.Append(" Their health is ");
                 foreach (var slime in monsters)
                 {
-                    partyText.Append($"{slime.CurrentHealth} out of {slime.TotalHealth}, ");
+                    partyText.Append($"{slime.Name}: {slime.CurrentHealth} out of {slime.TotalHealth}, ");
                 }
             }
             partyText.Append('.');
