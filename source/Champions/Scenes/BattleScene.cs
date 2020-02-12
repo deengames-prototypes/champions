@@ -24,7 +24,7 @@ namespace DeenGames.Champions.Scenes
         // Level 10 for a medium-intelligence creature
         private const int ALWAYS_TARGET_WEAKEST_AT_INTELLIGENCE = 200;
 
-        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(0.3);
+        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(3);
         private DateTime lastActionTime;
         private List<Unit> turns = new List<Unit>();
 
