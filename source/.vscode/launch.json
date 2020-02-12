@@ -9,10 +9,11 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Champions/bin/Debug/netcoreapp3.1/Champions.dll",
+            "program": "${workspaceFolder}/Champions/bin/Debug/netcoreapp3.1/Champions",
             "args": [],
             "cwd": "${workspaceFolder}/Champions",
-            "console": "internalConsole",
+            //"console": "internalConsole",
+            "console": "externalTerminal"
             "stopAtEntry": false
         },
         {
