@@ -38,15 +38,22 @@ namespace DeenGames.Champions.Accessibility.Consoles
                 while (isRunning)
                 {
                     Console.WriteLine("Your command? ");
-                    var text = Console.ReadKey().KeyChar;
-                    this.ProcessCommand(text);
+                    var key = Console.ReadKey();
+                    var lowerCaseKey = key.KeyChar.ToString().ToLower()[0];
+                    var isShiftDown = key.Modifiers.HasFlag(ConsoleModifiers.Shift);
+                    this.ProcessCommand(lowerCaseKey, isShiftDown);
                 }
             });
             this.replThread.Start();
         }
 
-        private void ProcessCommand(char input)
+        private void ProcessCommand(char input, bool isShiftDown)
         {
+            if (isShiftDown)
+            {
+                scene.IsActive = false;
+            }
+
             if (input == 'q') {
                 this.PrintStats(this.monsters[0]);
             } else if (input == 'w') {
@@ -60,15 +67,35 @@ namespace DeenGames.Champions.Accessibility.Consoles
             }
             
             else if (input == 'a') {
-                this.PrintStats(this.party[0]);
+                if (isShiftDown) {
+                    scene.UsePotionOn(this.party[0]);
+                } else {
+                    this.PrintStats(this.party[0]);
+                }
             } else if (input == 's') {
-                this.PrintStats(this.party[1]);
+                if (isShiftDown) {
+                    scene.UsePotionOn(this.party[1]);
+                } else {
+                    this.PrintStats(this.party[1]);
+                }
             } else if (input == 'd') {
-                this.PrintStats(this.party[2]);
+                if (isShiftDown) {
+                    scene.UsePotionOn(this.party[2]);
+                } else {
+                    this.PrintStats(this.party[2]);
+                }
             } else if (input == 'f') {
-                this.PrintStats(this.party[3]);
+                if (isShiftDown) {
+                    scene.UsePotionOn(this.party[3]);
+                } else {
+                    this.PrintStats(this.party[3]);
+                }
             } else if (input == 'g') {
-                this.PrintStats(this.party[4]);
+                if (isShiftDown) {
+                    scene.UsePotionOn(this.party[4]);
+                } else {
+                    this.PrintStats(this.party[4]);
+                }
             }
 
             else if (input == 'x')
@@ -121,14 +148,9 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     }
 
                     // Also bad: game logic shouldn't live here
-                    this.numPotions.Value -= 1;
-
                     var target = alive.ElementAt(partyNum);
-                    var healed = (int)Math.Ceiling(Constants.HEAL_POTION_PERCENT * target.TotalHealth);
-                    target.CurrentHealth = Math.Min(target.TotalHealth, target.CurrentHealth + healed);
-                    Console.WriteLine($"Healed {healed} HP, {target.Name} now has {target.CurrentHealth} out of {target.TotalHealth} health.");
-                    Thread.Sleep(2000);
-                    scene.IsActive = true;
+
+                    scene.UsePotionOn(target);
                 }
             }
             else if (input == 'g')

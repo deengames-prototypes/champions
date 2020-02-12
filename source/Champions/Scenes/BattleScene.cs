@@ -126,6 +126,16 @@ namespace DeenGames.Champions.Scenes
             }
         }
 
+        internal void UsePotionOn(Unit target)
+        {
+            this.numPotions.Value -= 1;
+            var healed = (int)Math.Ceiling(Constants.HEAL_POTION_PERCENT * target.TotalHealth);
+            target.CurrentHealth = Math.Min(target.TotalHealth, target.CurrentHealth + healed);
+            Console.WriteLine($"Healed {healed} HP, {target.Name} now has {target.CurrentHealth} out of {target.TotalHealth} health.");
+            Thread.Sleep(2000);
+            this.IsActive = true;
+        }
+
         override public void Update(int elapsedMilliseconds)
         {
             if (!this.IsActive || this.IsComplete)
