@@ -27,35 +27,38 @@ namespace DeenGames.Champions.Accessibility.Consoles
             // This is bad. Use an event bus instead.
             this.scene = scene;
             this.numPotions = numPotions;
-
+        }
+        
+        public void StartRepl()
+        {
             this.replThread = new Thread(() => 
             {
                 while (isRunning)
                 {
                     Console.WriteLine("Your command? ");
-                    var text = Console.ReadLine();
+                    var text = Console.ReadKey().KeyChar;
                     this.ProcessCommand(text);
                 }
             });
             this.replThread.Start();
         }
 
-        private void ProcessCommand(string text)
+        private void ProcessCommand(char input)
         {
-            if (text == "quit" || text == "q")
+            if (input == 'q')
             {
                 Console.WriteLine("Bye!");
                 Environment.Exit(0);
             }
-            else if (text == "help" || text == "h")
+            else if (input == 'h')
             {
                 Console.WriteLine("Commands: h for help, i for inventory, p to use a potion, s for stats");
             }
-            else if (text == "i" || text == "inv")
+            else if (input ==  'i')
             {
                 Console.WriteLine($"Inventory: {numPotions.Value} potions");
             }
-            else if (text == "p" || text == "potion")
+            else if (input == 'p')
             {
                 if (numPotions.Value == 0)
                 {
@@ -73,7 +76,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     }
                     
                     var partyNum = -1;
-                    while (!int.TryParse(Console.ReadLine(), out partyNum))
+                    while (!int.TryParse(Console.ReadKey().KeyChar.ToString(), out partyNum))
                     {
                         Console.WriteLine($"Try again - enter a number from 0 to {alive.Count() - 1}");
                     }
@@ -89,7 +92,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     scene.IsActive = true;
                 }
             }
-            else if (text == "s" || text == "stats")
+            else if (input == 's')
             {
                 this.StateParties(this.party, this.monsters, true);
             }
@@ -133,7 +136,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
             partyText.Append('.');
             Console.WriteLine(partyText.ToString());
 
-            Thread.Sleep(4000);
+            Thread.Sleep(5000);
             this.scene.IsActive = true;
         }
 

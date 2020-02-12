@@ -14,7 +14,9 @@ namespace DeenGames.Champions.Scenes
 {
     public class BattleScene : Scene
     {
+        // Pause
         public bool IsActive { get; set; } = true;
+        private bool IsComplete { get; set; } = false;
 
         private readonly int PLAYER_X = ChampionsGame.GAME_WIDTH - MONSTERS_X - Constants.IMAGE_SIZE;
         private const int MONSTERS_X = 300;
@@ -22,7 +24,7 @@ namespace DeenGames.Champions.Scenes
         // Level 10 for a medium-intelligence creature
         private const int ALWAYS_TARGET_WEAKEST_AT_INTELLIGENCE = 200;
 
-        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(2);
+        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(0.3);
         private DateTime lastActionTime;
         private List<Unit> turns = new List<Unit>();
 
@@ -103,6 +105,12 @@ namespace DeenGames.Champions.Scenes
             
             this.console.StateParties(this.party, this.monsters);
         }
+        
+        override public void Ready()
+        {
+            base.Ready();
+            this.console.StartRepl();
+        }
 
         private void LoadSounds()
         {
@@ -118,7 +126,7 @@ namespace DeenGames.Champions.Scenes
 
         override public void Update(int elapsedMilliseconds)
         {
-            if (!this.IsActive)
+            if (!this.IsActive || this.IsComplete)
             {
                 lastActionTime = DateTime.Now; // Pretend time is frozen
                 return;
@@ -147,32 +155,35 @@ namespace DeenGames.Champions.Scenes
 
         private void ExecuteTurn(Unit next)
         {
-            var isPartysTurn = this.party.Contains(next);
-
-            // TODO: AI based on level, etc.
-            // Random target. TODO: intelligently target ... weakest? strongest? etc.
-            Unit target = this.PickTargetFor(next, isPartysTurn);
-
-            this.RepositionUnits(isPartysTurn, next, target);
-            
-            // Basic attack. TODO: intelligently pick a move.
-            target.CurrentHealth -= next.Strength;
-            this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
-
-            this.RemoveTargetIfDead(target);
-
-            // Update news label
-            // TODO: show the last ~3-4 messages?
-            var message = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
-
-            news.Get<TextLabelComponent>().Text = message;
-            console.Print(message);
-
-            this.audios[next.Specialization].Get<AudioComponent>().Play();
-            if (target.CurrentHealth <= 0)
+            if (IsActive && !IsComplete)
             {
-                Thread.Sleep(500);
-                deathRattle.Get<AudioComponent>().Play();
+                var isPartysTurn = this.party.Contains(next);
+
+                // TODO: AI based on level, etc.
+                // Random target. TODO: intelligently target ... weakest? strongest? etc.
+                Unit target = this.PickTargetFor(next, isPartysTurn);
+
+                this.RepositionUnits(isPartysTurn, next, target);
+                
+                // Basic attack. TODO: intelligently pick a move.
+                target.CurrentHealth -= next.Strength;
+                this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
+
+                this.RemoveTargetIfDead(target);
+
+                // Update news label
+                // TODO: show the last ~3-4 messages?
+                var message = $"{next.Specialization} attacks {target.Specialization} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Specialization} dies!" : "")}";
+
+                news.Get<TextLabelComponent>().Text = message;
+                console.Print(message);
+
+                this.audios[next.Specialization].Get<AudioComponent>().Play();
+                if (target.CurrentHealth <= 0)
+                {
+                    Thread.Sleep(500);
+                    deathRattle.Get<AudioComponent>().Play();
+                }
             }
         }
 
@@ -241,7 +252,8 @@ namespace DeenGames.Champions.Scenes
                     if (!this.monsters.Any())
                     {
                         // VICTORY~!
-                        //ChampionsGame.LatestInstance.ShowScene(...)
+                        this.IsComplete = true;
+                        this.console.Print("You have won the battle!");
                     }
                  }
                  else
@@ -250,7 +262,8 @@ namespace DeenGames.Champions.Scenes
                     if (!this.party.Any())
                     {
                         // Defeat! :(
-                        //ChampionsGame.LatestInstance.ShowScene(...)
+                        this.IsComplete = true;
+                        this.console.Print("You have lost the battle!");
                     }
                  }
             }

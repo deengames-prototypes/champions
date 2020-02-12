@@ -19,6 +19,8 @@ namespace DeenGames.Champions
 
         override protected void Ready()
         {
+            base.Ready();
+            
             //this.ShowScene(new PickUnitsScene());
             this.ShowScene(new BattleScene(new List<Unit>
             {
