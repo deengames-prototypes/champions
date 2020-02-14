@@ -80,6 +80,10 @@ namespace DeenGames.Champions.Models
 
         private static Unit GetRandomTarget(List<Unit> pool)
         {
+            if (!pool.Any())
+            {
+                return null;
+            }
             var candidates = pool.Where(u => u.CurrentHealth > 0);
             return candidates.ElementAt(random.Next(candidates.Count()));
         }
