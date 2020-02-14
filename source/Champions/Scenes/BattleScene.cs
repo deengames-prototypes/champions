@@ -186,17 +186,26 @@ namespace DeenGames.Champions.Scenes
                 this.RepositionUnits(isPartysTurn, next, target);
                 
                 // Basic attack. TODO: intelligently pick a move.
-                target.CurrentHealth -= next.Strength;
-                this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
+                if (random.NextDouble() <= next.SkillProbability)
+                {
+                    next.UseSkill(this.party, this.monsters);
+                    // Dunno who it hurt/healed
+                    foreach (var entity in this.battleEntities.Keys)
+                    {
+                        battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {entity.CurrentHealth}/{entity.TotalHealth}";
+                    }
+                }
+                else
+                {
+                    next.Attack(target);
+                    this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
+                    
+                    var message = $"{next.Name} attacks {target.Name} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Name} dies!" : "")}";
+                    news.Get<TextLabelComponent>().Text = message;
+                    console.Print(message);
+                }
 
                 this.CheckForGameOver(target);
-
-                // Update news label
-                // TODO: show the last ~3-4 messages?
-                var message = $"{next.Name} attacks {target.Name} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Name} dies!" : "")}";
-
-                news.Get<TextLabelComponent>().Text = message;
-                console.Print(message);
 
                 this.audios[next.Specialization].Get<AudioComponent>().Play();
                 if (target.CurrentHealth <= 0)
