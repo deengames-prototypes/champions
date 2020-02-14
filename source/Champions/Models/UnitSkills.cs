@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DeenGames.Champions.Events;
+using Puffin.Core.Events;
 
 namespace DeenGames.Champions.Models
 {
@@ -34,29 +36,46 @@ namespace DeenGames.Champions.Models
 
         private static void RainOfArrows(Unit user, List<Unit> party, List<Unit> monsters)
         {
+            var totalDamage = 0;
             for (var i = 0; i < RAIN_OF_ARROWS_NUM_HITS; i++)
             {
                 var target = GetRandomTarget(monsters);
-                target.CurrentHealth -= Math.Max(0, user.Strength - target.Toughness);
+                int damage = Math.Max(0, user.Strength - target.Toughness);
+                target.CurrentHealth -= damage;
+                totalDamage += damage;
             }
+            
+            EventBus.LatestInstance.Broadcast(ChampionsEvent.OnAttackOrSkill,
+                $"{user.Name} attacks {RAIN_OF_ARROWS_NUM_HITS} times for {totalDamage} total damage!");
         }
 
         private static void Ruqiyah(Unit user, List<Unit> party, List<Unit> monsters)
         {
             var target = GetRandomTarget(party);
-            target.CurrentHealth += (int)Math.Ceiling(target.TotalHealth * RUQIYAH_HEAL_PERCENT);
+            var healAmount = (int)Math.Ceiling(target.TotalHealth * RUQIYAH_HEAL_PERCENT);
+            target.CurrentHealth += healAmount;
+            target.CurrentHealth = Math.Min(target.CurrentHealth, target.TotalHealth);
+
+            EventBus.LatestInstance.Broadcast(ChampionsEvent.OnAttackOrSkill,
+                $"{user.Name} uses ruqiyah to heal {target.Name} for {healAmount} health!");
         }
 
         private static void Impale(Unit user, List<Unit> party, List<Unit> monsters)
         {
             var target = GetRandomTarget(monsters);
-            target.CurrentHealth -= IMPALE_DAMAGE_MULTIPLIER * user.Strength;
+            var damage = IMPALE_DAMAGE_MULTIPLIER * user.Strength; // Ignores defense
+            target.CurrentHealth -= damage;
+
+            EventBus.LatestInstance.Broadcast(ChampionsEvent.OnAttackOrSkill,
+                $"{user.Name} impales {target.Name} for {damage} damage!");
         }
 
         private static void Digest(Unit user, List<Unit> party, List<Unit> monsters)
         {
             var target = GetRandomTarget(party);
             target.CurrentBattleToughnessModifiers += DIGEST_TOUGHNESS_MODIFIER;
+            EventBus.LatestInstance.Broadcast(ChampionsEvent.OnAttackOrSkill,
+                $"{user.Name} spews acid on {target.Name}! Defense droppped!");
         }
 
         private static Unit GetRandomTarget(List<Unit> pool)

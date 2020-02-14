@@ -51,6 +51,8 @@ namespace DeenGames.Champions.Models
         {
             var damage = Math.Max(0, this.Strength - target.Toughness);
             target.CurrentHealth -= damage;
+            var message = $"{this.Name} attacks {target.Name} for {damage} damage! {(target.CurrentHealth <= 0 ? $"{target.Name} dies!" : "")}";
+            EventBus.LatestInstance.Broadcast(ChampionsEvent.OnAttackOrSkill, message);
         }
 
         public void UseSkill(List<Unit> party, List<Unit> monsters)
@@ -90,7 +92,7 @@ namespace DeenGames.Champions.Models
                     
                 case Specialization.Slime:
                     // Medium attack, low defense, low speed
-                    this.Strength = MEDIUM_STAT_MULTIPLIER * this.Level;
+                    this.Strength = HIGH_STAT_MULTIPLIER * this.Level;
                     this.toughness = LOW_STAT_MULTIPLIER * this.Level;
                     this.Speed = LOW_STAT_MULTIPLIER * this.Level;
                     this.Intelligence = LOW_STAT_MULTIPLIER * this.Level;

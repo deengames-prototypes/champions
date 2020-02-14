@@ -69,7 +69,10 @@ namespace DeenGames.Champions.Scenes
             EventBus.LatestInstance.Subscribe(ChampionsEvent.UsePotion, (target) => this.UsePotionOn(target as Unit));
             EventBus.LatestInstance.Subscribe(ChampionsEvent.PauseGame, (data) => this.IsActive = false);
             EventBus.LatestInstance.Subscribe(ChampionsEvent.ResumeGame, (data) => this.IsActive = true);
-
+            EventBus.LatestInstance.Subscribe(ChampionsEvent.OnAttackOrSkill, (message) => {
+                news.Get<TextLabelComponent>().Text = message.ToString();
+                console.Print(message.ToString());
+            });
 
             // Grass?
             this.BackgroundColour = 0x3c5956;
@@ -84,7 +87,7 @@ namespace DeenGames.Champions.Scenes
                 .Sprite(Path.Combine("Content", "Images", "Arrow-Left.png"));
             this.Add(monsterArrow);
 
-            news = new Entity().Move(400, 100).Label("");
+            news = new Entity().Move(300, 100).Label("");
             this.Add(news);
 
             
@@ -198,11 +201,7 @@ namespace DeenGames.Champions.Scenes
                 else
                 {
                     next.Attack(target);
-                    this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";
-                    
-                    var message = $"{next.Name} attacks {target.Name} for {next.Strength} damage! {(target.CurrentHealth <= 0 ? $"{target.Name} dies!" : "")}";
-                    news.Get<TextLabelComponent>().Text = message;
-                    console.Print(message);
+                    this.battleEntities[target].Get<TextLabelComponent>().Text = $"HP: {target.CurrentHealth}/{target.TotalHealth}";                   
                 }
 
                 this.CheckForGameOver(target);

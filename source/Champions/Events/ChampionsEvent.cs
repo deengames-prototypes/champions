@@ -5,5 +5,6 @@ namespace DeenGames.Champions.Events
         PauseGame,
         ResumeGame,
         UsePotion,
+        OnAttackOrSkill, // Attack, skill, etc.
     }
 }
