@@ -15,22 +15,24 @@ namespace DeenGames.Champions.Accessibility.Consoles
     /// </summary>
     public class BattleSceneConsole : IDisposable
     {
+        private bool IsGamePaused = false;
         private Thread replThread;
         private bool isRunning = true;
         private List<Unit> party;
         private List<Unit> monsters;
-        private BattleScene scene;
         
         // Boxed int
         private BoxedInt numPotions;
 
-        public BattleSceneConsole(BattleScene scene, List<Unit> party, List<Unit> monsters, BoxedInt numPotions)
+        public BattleSceneConsole(List<Unit> party, List<Unit> monsters, BoxedInt numPotions)
         {
             // This is bad. Use an event bus instead.
-            this.scene = scene;
             this.party = party;
             this.monsters = monsters;
             this.numPotions = numPotions;
+
+            EventBus.LatestInstance.Subscribe(ChampionsEvent.PauseGame, (data) => this.IsGamePaused = true);
+            EventBus.LatestInstance.Subscribe(ChampionsEvent.ResumeGame, (data) => this.IsGamePaused = false);
         }
         
         public void StartRepl()
@@ -53,7 +55,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
         {
             if (isShiftDown)
             {
-                scene.IsActive = false;
+                EventBus.LatestInstance.Broadcast(ChampionsEvent.PauseGame);
             }
 
             if (input == 'q') {
@@ -107,10 +109,10 @@ namespace DeenGames.Champions.Accessibility.Consoles
             }
             else if (input == 'h')
             {
-                scene.IsActive = false;
+                EventBus.LatestInstance.Broadcast(ChampionsEvent.PauseGame);
                 Console.WriteLine("Commands: h for help, i for inventory, p to pause, o to use a potion, g for info, x to quit. Q W E R T to check monster stats, A S D F G to check party member stats.");
                 Thread.Sleep(3000);
-                scene.IsActive = true;
+                EventBus.LatestInstance.Broadcast(ChampionsEvent.ResumeGame);
             }
             else if (input ==  'i')
             {
@@ -118,12 +120,13 @@ namespace DeenGames.Champions.Accessibility.Consoles
             }
             else if (input == 'p')
             {
-                this.scene.IsActive = !this.scene.IsActive;
-                if (this.scene.IsActive)
+                if (this.IsGamePaused)
                 {
                     Console.WriteLine("Unpaused. Press p to pause.");
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.ResumeGame);
                 } else {
                     Console.WriteLine("Paused. Press p to unpause.");
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.PauseGame);
                 }
             }
             else if (input == 'o') // use potion
@@ -134,7 +137,8 @@ namespace DeenGames.Champions.Accessibility.Consoles
                 }
                 else
                 {
-                    scene.IsActive = false;
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.PauseGame);
+
                     Console.WriteLine("Press the number for the party member to use it on.");
                     var alive = this.party.Where(p => p.CurrentHealth > 0);
                     foreach (var i in Enumerable.Range(0, alive.Count()))
@@ -174,7 +178,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
 
         internal void StateParties(bool stateHealth = false)
         {
-            this.scene.IsActive = false;
+            EventBus.LatestInstance.Broadcast(ChampionsEvent.PauseGame);
 
             StringBuilder partyText = new StringBuilder();
             
@@ -202,7 +206,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
             Console.WriteLine(partyText.ToString());
 
             Thread.Sleep(5000);
-            this.scene.IsActive = true;
+            EventBus.LatestInstance.Broadcast(ChampionsEvent.ResumeGame);
         }
 
         internal void Print(string message)

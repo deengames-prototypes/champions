@@ -26,7 +26,7 @@ namespace DeenGames.Champions.Scenes
         // Level 10 for a medium-intelligence creature
         private const int ALWAYS_TARGET_WEAKEST_AT_INTELLIGENCE = 200;
 
-        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(3);
+        private readonly TimeSpan DELAY_BETWEEN_ACTIONS = TimeSpan.FromSeconds(1);
         private DateTime lastActionTime;
         private List<Unit> turns = new List<Unit>();
 
@@ -61,11 +61,15 @@ namespace DeenGames.Champions.Scenes
                 new Unit(5, Specialization.Slime, random.Next(1, 4)),
             };
 
-            console = new BattleSceneConsole(this, party, monsters, numPotions);
+            console = new BattleSceneConsole(party, monsters, numPotions);
 
             this.LoadSounds();
 
+            // Events
             EventBus.LatestInstance.Subscribe(ChampionsEvent.UsePotion, (target) => this.UsePotionOn(target as Unit));
+            EventBus.LatestInstance.Subscribe(ChampionsEvent.PauseGame, (data) => this.IsActive = false);
+            EventBus.LatestInstance.Subscribe(ChampionsEvent.ResumeGame, (data) => this.IsActive = true);
+
 
             // Grass?
             this.BackgroundColour = 0x3c5956;
