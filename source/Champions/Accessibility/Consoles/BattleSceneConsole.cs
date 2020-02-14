@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using DeenGames.Champions.Events;
 using DeenGames.Champions.Models;
 using DeenGames.Champions.Scenes;
+using Puffin.Core.Events;
 
 namespace DeenGames.Champions.Accessibility.Consoles
 {
@@ -68,31 +70,31 @@ namespace DeenGames.Champions.Accessibility.Consoles
             
             else if (input == 'a') {
                 if (isShiftDown) {
-                    scene.UsePotionOn(this.party[0]);
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.UsePotion, this.party[0]);
                 } else {
                     this.PrintStats(this.party[0]);
                 }
             } else if (input == 's') {
                 if (isShiftDown) {
-                    scene.UsePotionOn(this.party[1]);
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.UsePotion, this.party[1]);
                 } else {
                     this.PrintStats(this.party[1]);
                 }
             } else if (input == 'd') {
                 if (isShiftDown) {
-                    scene.UsePotionOn(this.party[2]);
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.UsePotion, this.party[2]);
                 } else {
                     this.PrintStats(this.party[2]);
                 }
             } else if (input == 'f') {
                 if (isShiftDown) {
-                    scene.UsePotionOn(this.party[3]);
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.UsePotion, this.party[3]);
                 } else {
                     this.PrintStats(this.party[3]);
                 }
             } else if (input == 'g') {
                 if (isShiftDown) {
-                    scene.UsePotionOn(this.party[4]);
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.UsePotion, this.party[4]);
                 } else {
                     this.PrintStats(this.party[4]);
                 }
@@ -150,7 +152,7 @@ namespace DeenGames.Champions.Accessibility.Consoles
                     // Also bad: game logic shouldn't live here
                     var target = alive.ElementAt(partyNum);
 
-                    scene.UsePotionOn(target);
+                    EventBus.LatestInstance.Broadcast(ChampionsEvent.UsePotion, target);
                 }
             }
             else if (input == 'g')

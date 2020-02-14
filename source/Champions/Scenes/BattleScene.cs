@@ -5,10 +5,12 @@ using System.Linq;
 using System.Threading;
 using DeenGames.Champions.Accessibility;
 using DeenGames.Champions.Accessibility.Consoles;
+using DeenGames.Champions.Events;
 using DeenGames.Champions.Models;
 using Puffin.Core;
 using Puffin.Core.Ecs;
 using Puffin.Core.Ecs.Components;
+using Puffin.Core.Events;
 
 namespace DeenGames.Champions.Scenes
 {
@@ -62,6 +64,8 @@ namespace DeenGames.Champions.Scenes
             console = new BattleSceneConsole(this, party, monsters, numPotions);
 
             this.LoadSounds();
+
+            EventBus.LatestInstance.Subscribe(ChampionsEvent.UsePotion, (target) => this.UsePotionOn(target as Unit));
 
             // Grass?
             this.BackgroundColour = 0x3c5956;
@@ -126,7 +130,7 @@ namespace DeenGames.Champions.Scenes
             }
         }
 
-        internal void UsePotionOn(Unit target)
+        private void UsePotionOn(Unit target)
         {
             this.numPotions.Value -= 1;
             var healed = (int)Math.Ceiling(Constants.HEAL_POTION_PERCENT * target.TotalHealth);
